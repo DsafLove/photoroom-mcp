@@ -62,14 +62,13 @@ export async function removeBackground(imageUrl, options = {}) {
       throw new Error(`Photoroom API error (${response.status}): ${errorText}`);
     }
 
-    // Convert the image to a data URL
     const resultBuffer = await response.buffer();
-    const base64 = resultBuffer.toString('base64');
-    const contentType = outputFormat === 'png' ? 'image/png' : 'image/jpeg';
-    const resultUrl = `data:${contentType};base64,${base64}`;
+    const resultBase64 = resultBuffer.toString('base64');
+    const resultMimeType = outputFormat === 'png' ? 'image/png' : 'image/jpeg';
 
     return {
-      resultUrl,
+      resultBase64,
+      resultMimeType,
       success: true
     };
   } catch (error) {
@@ -175,12 +174,12 @@ export async function editImage(imageUrl, options = {}) {
     }
 
     const resultBuffer = await response.buffer();
-    const contentType = response.headers.get('content-type') || 'image/png';
-    const base64 = resultBuffer.toString('base64');
-    const resultUrl = `data:${contentType};base64,${base64}`;
+    const resultMimeType = response.headers.get('content-type') || 'image/png';
+    const resultBase64 = resultBuffer.toString('base64');
 
     return {
-      resultUrl,
+      resultBase64,
+      resultMimeType,
       success: true
     };
   } catch (error) {
