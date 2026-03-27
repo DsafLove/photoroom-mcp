@@ -73,12 +73,12 @@ export function createServer() {
       expand_mode: z.enum(["ai.auto"]).optional().describe("AI Expand: seamlessly expand the background to fill the output canvas"),
       uncrop_mode: z.enum(["ai.auto"]).optional().describe("AI Uncrop: reconstruct clipped edges of the main subject. Requires remove_background=true."),
       background_blur_mode: z.enum(["bokeh", "gaussian"]).optional().describe("Blur the background of the image. Requires remove_background=false."),
-      lighting_mode: z.enum(["ai.auto"]).optional().describe("AI Relight: intelligently relight the subject"),
-      text_removal_mode: z.enum(["auto"]).optional().describe("AI Text Removal: automatically detect and remove text from the image"),
-      beautify_mode: z.enum(["auto"]).optional().describe("AI Beautifier: apply skin smoothing and light beautification to portraits"),
+      lighting_mode: z.enum(["ai.auto", "ai.preserve-hue-and-saturation"]).optional().describe("AI Relight: intelligently relight the subject"),
+      text_removal_mode: z.enum(["ai.artificial", "ai.natural", "ai.all"]).optional().describe("AI Text Removal: automatically detect and remove text from the image"),
+      beautify_mode: z.enum(["ai.auto", "ai.food", "ai.car"]).optional().describe("AI Beautifier: ai.auto for packshot product images, ai.food for food images (e.g. placing subject on a plate), ai.car for car images (e.g. removing reflections)"),
       flat_lay_mode: z.enum(["ai.auto"]).optional().describe("Flat Lay: generate a clean top-down product image for e-commerce"),
       ghost_mannequin_mode: z.enum(["ai.auto"]).optional().describe("Ghost Mannequin: remove the mannequin from clothing product images"),
-      upscale_mode: z.enum(["auto"]).optional().describe("AI Upscale: increase the resolution of the image")
+      upscale_mode: z.enum(["ai.fast", "ai.slow"]).optional().describe("AI Upscale: increase the resolution of the image (ai.fast: optimized for speed, ai.slow: optimized for quality)")
     },
     async ({
       image_url,
