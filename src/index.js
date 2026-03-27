@@ -1,7 +1,7 @@
 #!/usr/bin/env node
     import http from 'node:http';
     import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-    import { server } from './server.js';
+    import { createServer } from './server.js';
     import dotenv from 'dotenv';
 
     // Load environment variables
@@ -16,13 +16,23 @@
       console.warn('You can copy .env.example to .env and add your key.');
     }
 
-    // Create a stateless HTTP Streamable transport
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-    await server.connect(transport);
-
-    // Create an HTTP server that forwards all requests to the MCP transport
-    const httpServer = http.createServer((req, res) => {
-      transport.handleRequest(req, res);
+    // Create an HTTP server.
+    // A fresh McpServer + StreamableHTTPServerTransport is created for every
+    // incoming request because the SDK's stateless transport (sessionIdGenerator: undefined)
+    // cannot be reused across multiple requests.
+    const httpServer = http.createServer(async (req, res) => {
+      try {
+        const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+        const server = createServer();
+        await server.connect(transport);
+        await transport.handleRequest(req, res);
+      } catch (error) {
+        console.error('Error handling request:', error);
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Internal server error' }));
+        }
+      }
     });
 
     const PORT = process.env.PORT || 80;
