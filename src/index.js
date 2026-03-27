@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-    import http from 'node:http';
+    import http2 from 'node:http2';
     import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
     import { createServer } from './server.js';
     import dotenv from 'dotenv';
@@ -16,11 +16,13 @@
       console.warn('You can copy .env.example to .env and add your key.');
     }
 
-    // Create an HTTP server.
+    // Create an HTTP/2 cleartext (h2c) server.
+    // Cloud Run terminates TLS and forwards traffic to containers using HTTP/2 cleartext,
+    // so using http2.createServer() (without TLS) resolves the protocol error.
     // A fresh McpServer + StreamableHTTPServerTransport is created for every
     // incoming request because the SDK's stateless transport (sessionIdGenerator: undefined)
     // cannot be reused across multiple requests.
-    const httpServer = http.createServer(async (req, res) => {
+    const httpServer = http2.createServer(async (req, res) => {
       try {
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const server = createServer();
@@ -35,7 +37,7 @@
       }
     });
 
-    const PORT = process.env.PORT || 80;
+    const PORT = process.env.PORT || 8080;
     httpServer.listen(PORT, () => {
       console.log(`Photoroom MCP server listening on port ${PORT}`);
     });
