@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-    import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+    import http from 'node:http';
+    import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
     import { server } from './server.js';
     import dotenv from 'dotenv';
 
@@ -15,6 +16,16 @@
       console.warn('You can copy .env.example to .env and add your key.');
     }
 
-    // Start receiving messages on stdin and sending messages on stdout
-    const transport = new StdioServerTransport();
+    // Create a stateless HTTP Streamable transport
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     await server.connect(transport);
+
+    // Create an HTTP server that forwards all requests to the MCP transport
+    const httpServer = http.createServer((req, res) => {
+      transport.handleRequest(req, res);
+    });
+
+    const PORT = process.env.PORT || 80;
+    httpServer.listen(PORT, () => {
+      console.log(`Photoroom MCP server listening on port ${PORT}`);
+    });
