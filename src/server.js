@@ -39,7 +39,8 @@ export function createServer() {
             },
             {
               type: "image",
-              url: result.resultUrl
+              data: result.resultBase64,
+              mimeType: result.resultMimeType
             }
           ]
         };
@@ -153,7 +154,8 @@ export function createServer() {
             },
             {
               type: "image",
-              url: result.resultUrl
+              data: result.resultBase64,
+              mimeType: result.resultMimeType
             }
           ]
         };
